@@ -29,7 +29,7 @@ class RecipeController extends Controller
             'image' => 'nullable|mimes:png,jpg,jpeg,webp',
             'ingredients' => 'nullable|string',
             'link' => 'nullable|string',
-            'categories' => 'nullable|array',
+            // 'category_id' => 'nullable|array',
         ]);
 
         $path = '';// Inicializē tukšu ceļu
@@ -43,9 +43,9 @@ class RecipeController extends Controller
             'image' => $path,
             'ingredients' => $request->ingredients,
             'link' => $request->link,
-        ]);
+            'category_id' => $request->category_id,
 
-        $recipe->categories()->sync($request->categories);
+        ]);
 
         return redirect()->route('home')->with('status', 'Recipe Created');
     }
@@ -65,7 +65,6 @@ class RecipeController extends Controller
             'image' => 'nullable|mimes:png,jpg,jpeg,webp',
             'ingredients' => 'nullable|string',
             'link' => 'nullable|string',
-            'categories' => 'nullable|array',
         ]);
 
         $recipe = Recipe::findOrFail($id);
@@ -80,9 +79,8 @@ class RecipeController extends Controller
         $recipe->description = $request->description;
         $recipe->ingredients = $request->ingredients;
         $recipe->link = $request->link;
+        $recipe->category_id = $request->category_id;
         $recipe->save();
-
-        $recipe->categories()->sync($request->categories);
 
         return redirect()->route('home')->with('status', 'Recipe Updated');
     }
@@ -91,23 +89,26 @@ class RecipeController extends Controller
     {
         $recipe = Recipe::findOrFail($id);
         File::delete(storage_path('app/public/' . $recipe->image));
-        $recipe->categories()->detach();
         $recipe->delete();
 
         return redirect()->route('home')->with('status', 'Recipe Deleted');
     }
 
-    public function search(Request $request)//meklē recepti.
-    {
-        $query = $request->input('query');
-        $recipes = Recipe::where('name', 'like', "%$query%")
-                          ->orWhere('description', 'like', "%$query%")
-                          ->orWhere('ingredients', 'like', "%$query%")
-                          ->orWhere('link', 'like', "%$query%")
-                          ->get();
+    public function search(Request $request)
+{
+    $searchTerm = $request->input('query');
 
-        return view('recipe.index', compact('recipes'));
-    }
+    $recipes = Recipe::where('name', 'like', "%$searchTerm%")
+                      ->orWhere('description', 'like', "%$searchTerm%")
+                      ->orWhere('ingredients', 'like', "%$searchTerm%")
+                      ->orWhere('link', 'like', "%$searchTerm%")
+                      ->orWhereHas('category', function ($query) use ($searchTerm) {
+                          $query->where('name', 'like', "%$searchTerm%");
+                      })
+                      ->get();
+
+    return view('recipe.index', compact('recipes'));
+}
 
     public function getRandomRecipe()//izvada nejaušu recepti.
     {

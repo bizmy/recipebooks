@@ -115,16 +115,7 @@
                             <td>
                                 <img src="{{ asset('storage/' . $item->image) }}" style="max-width: 100px;" alt="Image" class="img-fluid rounded">
                             </td>
-                            <td>
-                                @if ($item->categories->isNotEmpty())
-                                    @foreach ($item->categories as $category)
-                                        {{ $category->name }}
-                                        @if (!$loop->last), @endif 
-                                    @endforeach
-                                @else
-                                    -
-                                @endif
-                            </td>
+                            <td title="{{$item->category->description}}">{{$item->category->name}}</td>
                             <td>
                                 <a href="{{ url('recipes/'.$item->id.'/edit') }}" class="btn btn-sm btn-primary">Edit</a>
                                 <form action="{{ url('recipes/'.$item->id.'/delete') }}" method="POST" class="d-inline">

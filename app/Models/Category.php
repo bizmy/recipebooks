@@ -13,9 +13,10 @@ class Category extends Model
 
     protected $fillable = [
         'name',
+        'description',
+
     ];
 
-    // Define the relationship with recipes here...
     public function recipes()
 {
     return $this->hasMany(Recipe::class);

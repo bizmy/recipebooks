@@ -42,11 +42,13 @@
                     </div>
                     <div class="mb-3">
                         <label>Categories</label>
-                        <select name="categories[]" class="form-control" multiple>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ in_array($category->id, $recipe->categories->pluck('id')->toArray()) ? 'selected' : '' }}>{{ $category->name }}</option>
+                            <select class="form-control" id="category_id" name="category_id">
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}" {{ $recipe->category_id == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
                             @endforeach
-                        </select>
+                            </select>
                         @error('categories') <span class="text-danger">{{ $message }}</span> @enderror
                     </div>
                     <div class="mb-3">
